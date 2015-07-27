@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include "wiringBBB.hpp"
-#include <time.h>
+// #include <time.h>
+#include <unistd.h>
+#define SLEEP_TIME 1.7e-07
 
+/*
 int sleep(int time)
 {
     clock_t s = clock();
@@ -14,6 +17,7 @@ int sleep(int time)
     return 1;
 }
 
+*/
 
 
 /*-----2sinsuu-----*/
@@ -66,6 +70,11 @@ int main(void)
     pinMode(MOSI,OUTPUT);
     pinMode(MISO,INPUT);
     pinMode(SS1,OUTPUT);
+    pinMode(SS2,OUTPUT);
+
+    digitalWrite(SCK,LOW);
+    digitalWrite(SS1,HIGH);
+    digitalWrite(SS2,HIGH);
 
     /*--------------------*/
 
@@ -80,27 +89,38 @@ int main(void)
     Writedata[6] = write_data & 0b00000010 >> 1;
     Writedata[7] = write_data & 0b00000001;
     
-    digitalWrite(SS1,HIGH);
+    digitalWrite(SS1,LOW);
     int n;
-    int code;
-    for(;;){
+
+    while(true){
         for(n=7;n >= 0;n--)
         {
             digitalWrite(SCK,HIGH);
-            if(Writedata[n] = 1)
+            if(Writedata[n] == 1)
                 digitalWrite(MOSI,HIGH);
-
-            Readdata[n] = digitalRead(MOSI);
-            if(Readdata[n] = HIGH)
-                Readdata[n] = 1;
             else
-                Readdata[n] = 0;
-            digitalWrite(SCK,LOW);
-        }
-        digitalWrite(SS1,LOW);
+                digitalWrite(MOSI,LOW);
 
-        printf("Read_data=%d%d%d%d%d%d%d%d\n",Readdata[0],Readdata[1],Readdata[2],Readdata[3],Readdata[4],Readdata[5],Readdata[6],Readdata[7]);
-   sleep(1000); 
+            sleep(SLEEP_TIME);
+
+            digitalWrite(SCK,LOW);
+            Readdata[n] = digitalRead(MISO);
+
+            if(Readdata[n] = HIGH)
+                Readdata[n] == 1;
+            else
+                Readdata[n] == 0;
+            sleep(SLEEP_TIME);
+        }
+        digitalWrite(SS1,HIGH);
+
+        printf("Read_data=");
+        for(int i=7;i >= 0;i--)
+        {
+            printf("%d",Readdata[i]);
+        }
+        puts("");
+
     }
     return 0;
 }
