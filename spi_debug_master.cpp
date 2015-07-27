@@ -3,7 +3,7 @@
 #include <time.h>
 //#include <unistd.h>
 //#define SLEEP_TIME 1.7e-07
-#define SLEEP_TIME 500
+#define SLEEP_TIME 1
 
 
 int sleep(int time)
@@ -59,9 +59,10 @@ int main(void)
     unsigned char readdata[7];
     unsigned char raw_writedata;
     unsigned char raw_readdata;
-    // scanf("%d",&raw_writedata);
+    printf("Please raw_writedata:");
+    scanf("%d",&raw_writedata);
 
-    raw_writedata = 0xaa;
+    //raw_writedata = 0xaa;
     printf("Write_data=");
     print_bits(raw_writedata,8);
     putchar('\n');
@@ -80,31 +81,7 @@ int main(void)
 
     /*-----Write and Reads-----*/
     
-  /*  writedata[0] = raw_writedata & 128 >> 7;
-    writedata[1] = raw_writedata & 64 >> 6;
-    writedata[2] = raw_writedata & 32 >> 5;
-    writedata[3] = raw_writedata & 16 >> 4;
-    writedata[4] = raw_writedata & 8 >> 3;
-    writedata[5] = raw_writedata & 4 >> 2;
-    writedata[6] = raw_writedata & 2 >> 1;
-    writedata[7] = raw_writedata & 1;  */
-
-  /*  writedata[0] = raw_writedata / 0x80;
-    raw_writedata -= writedata[0] * 0x80;
-    writedata[1] = raw_writedata / 0x40;
-    raw_writedata -= writedata[1] * 0x40;
-    writedata[2] = raw_writedata / 0x20;
-    raw_writedata -= writedata[2] * 0x20;
-    writedata[3] = raw_writedata / 0x10;
-    raw_writedata -= writedata[3] * 0x10;
-    writedata[4] = raw_writedata / 0x8;
-    raw_writedata -= writedata[4] * 0x8;
-    writedata[5] = raw_writedata / 0x4;
-    raw_writedata -= writedata[5] * 0x4;
-    writedata[6] = raw_writedata / 0x2;
-    raw_writedata -= writedata[6] * 0x2;
-    writedata[7] = raw_writedata;   */
-    
+  
     int i = 7,power_of_2 = 0x80;
     while(i != -1){
         writedata[i] = raw_writedata / power_of_2;
@@ -127,20 +104,19 @@ int main(void)
             digitalWrite(SCK,HIGH);
             if(writedata[n] == 1){
                 digitalWrite(MOSI,HIGH);
-                puts("WriteHIGH");
+             //   puts("\t\tHIGH");
             }
             else{
                 digitalWrite(MOSI,LOW);
-                puts("WriteLOW");
+             //   puts("\t\tLOW");
             }
 
             sleep(SLEEP_TIME);
 
             digitalWrite(SCK,LOW);
             readdata[n] = digitalRead(MISO);
-            printf("Readdata[%d]=%d\n",n,readdata[n]);
 
-            if(readdata[n] = HIGH)
+            if(readdata[n] == HIGH)
                 readdata[n] == 1;
             else
                 readdata[n] == 0;

@@ -72,16 +72,15 @@ int main(void)
 
     /*-----Write and Reads-----*/
     
-    Writedata[0] = write_data & 0b10000000 >> 7;
-    Writedata[1] = write_data & 0b01000000 >> 6;
-    Writedata[2] = write_data & 0b00100000 >> 5;
-    Writedata[3] = write_data & 0b00010000 >> 4;
-    Writedata[4] = write_data & 0b00001000 >> 3;
-    Writedata[5] = write_data & 0b00000100 >> 2;
-    Writedata[6] = write_data & 0b00000010 >> 1;
-    Writedata[7] = write_data & 0b00000001;
     
     int n;
+    int i = 7,power_of_2 = 0x80;
+    while(i != -1){
+        Writedata[i] = write_data / power_of_2;
+        write_data -= Writedata[i] * power_of_2;
+        i--;
+        power_of_2 /= 0x2;
+    }
 
     while(digitalRead(SS1) == LOW){
         for(n=7;n >= 0;n--){
@@ -95,7 +94,7 @@ int main(void)
             }
             Readdata[n] = digitalRead(MOSI);
 
-            if(Readdata[n] = HIGH)
+            if(Readdata[n] == HIGH)
                 Readdata[n] == 1;
             else
                 Readdata[n] == 0;
