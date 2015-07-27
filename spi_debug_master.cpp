@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include "wiringBBB.hpp"
-// #include <time.h>
-#include <unistd.h>
-#define SLEEP_TIME 1.7e-07
+#include <time.h>
+//#include <unistd.h>
+//#define SLEEP_TIME 1.7e-07
+#define SLEEP_TIME 500
 
-/*
+
 int sleep(int time)
 {
     clock_t s = clock();
@@ -17,7 +18,6 @@ int sleep(int time)
     return 1;
 }
 
-*/
 
 
 /*-----2sinsuu-----*/
@@ -55,15 +55,15 @@ int main(void)
     int MISO = 45;
     int SS1 = 23;
     int SS2 = 47;
-    unsigned char Writedata[7];
-    unsigned char Readdata[7];
-    unsigned char write_data;
-    unsigned char read_data;
-    // scanf("%d",&write_data);
+    unsigned char writedata[7];
+    unsigned char readdata[7];
+    unsigned char raw_writedata;
+    unsigned char raw_readdata;
+    // scanf("%d",&raw_writedata);
 
-    write_data = 0b10101010;
+    raw_writedata = 0xaa;
     printf("Write_data=");
-    print_bits(write_data,8);
+    print_bits(raw_writedata,8);
     putchar('\n');
 
     pinMode(SCK,OUTPUT);
@@ -80,36 +80,70 @@ int main(void)
 
     /*-----Write and Reads-----*/
     
-    Writedata[0] = write_data & 0b10000000 >> 7;
-    Writedata[1] = write_data & 0b01000000 >> 6;
-    Writedata[2] = write_data & 0b00100000 >> 5;
-    Writedata[3] = write_data & 0b00010000 >> 4;
-    Writedata[4] = write_data & 0b00001000 >> 3;
-    Writedata[5] = write_data & 0b00000100 >> 2;
-    Writedata[6] = write_data & 0b00000010 >> 1;
-    Writedata[7] = write_data & 0b00000001;
+  /*  writedata[0] = raw_writedata & 128 >> 7;
+    writedata[1] = raw_writedata & 64 >> 6;
+    writedata[2] = raw_writedata & 32 >> 5;
+    writedata[3] = raw_writedata & 16 >> 4;
+    writedata[4] = raw_writedata & 8 >> 3;
+    writedata[5] = raw_writedata & 4 >> 2;
+    writedata[6] = raw_writedata & 2 >> 1;
+    writedata[7] = raw_writedata & 1;  */
+
+  /*  writedata[0] = raw_writedata / 0x80;
+    raw_writedata -= writedata[0] * 0x80;
+    writedata[1] = raw_writedata / 0x40;
+    raw_writedata -= writedata[1] * 0x40;
+    writedata[2] = raw_writedata / 0x20;
+    raw_writedata -= writedata[2] * 0x20;
+    writedata[3] = raw_writedata / 0x10;
+    raw_writedata -= writedata[3] * 0x10;
+    writedata[4] = raw_writedata / 0x8;
+    raw_writedata -= writedata[4] * 0x8;
+    writedata[5] = raw_writedata / 0x4;
+    raw_writedata -= writedata[5] * 0x4;
+    writedata[6] = raw_writedata / 0x2;
+    raw_writedata -= writedata[6] * 0x2;
+    writedata[7] = raw_writedata;   */
+    
+    int i = 7,power_of_2 = 0x80;
+    while(i != -1){
+        writedata[i] = raw_writedata / power_of_2;
+        raw_writedata -= writedata[i] * power_of_2;
+        i--;
+        power_of_2 /= 0x2;
+    }
     
     digitalWrite(SS1,LOW);
     int n;
-
+    for(int i=7;i >= 0;i--)
+    {
+        printf("writedata[%d]=%d\n",i,writedata[i]);
+        printf("%d",writedata[i]);
+    }
+    puts("");
     while(true){
         for(n=7;n >= 0;n--)
         {
             digitalWrite(SCK,HIGH);
-            if(Writedata[n] == 1)
+            if(writedata[n] == 1){
                 digitalWrite(MOSI,HIGH);
-            else
+                puts("WriteHIGH");
+            }
+            else{
                 digitalWrite(MOSI,LOW);
+                puts("WriteLOW");
+            }
 
             sleep(SLEEP_TIME);
 
             digitalWrite(SCK,LOW);
-            Readdata[n] = digitalRead(MISO);
+            readdata[n] = digitalRead(MISO);
+            printf("Readdata[%d]=%d\n",n,readdata[n]);
 
-            if(Readdata[n] = HIGH)
-                Readdata[n] == 1;
+            if(readdata[n] = HIGH)
+                readdata[n] == 1;
             else
-                Readdata[n] == 0;
+                readdata[n] == 0;
             sleep(SLEEP_TIME);
         }
         digitalWrite(SS1,HIGH);
@@ -117,7 +151,7 @@ int main(void)
         printf("Read_data=");
         for(int i=7;i >= 0;i--)
         {
-            printf("%d",Readdata[i]);
+            printf("%d",readdata[i]);
         }
         puts("");
 
