@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 
-int msleep(int time)
+int sleep(int time)
 {
     clock_t s = clock();
     clock_t c;
@@ -21,7 +21,7 @@ int main(void)
     num[2] = 3;
     num[3] = 4;
 
-    msleep(1000);
+    sleep(1000);
     printf("%d%d%d%d\n",num[0],num[1],num[2],num[3]);
     return 0;
 }
